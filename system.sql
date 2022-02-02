@@ -1,6 +1,6 @@
---system
 
-----------------------22/01/27
+-- 1/27 ----------------------------------------------
+
 GRANT CREATE USER TO kim;
 
 SELECT * FROM DBA_USERS; -- DBA는 관리자만 쓸수있음
@@ -12,7 +12,7 @@ ALTER USER TEST ACCOUNT LOCK; --계정 잠금
 ALTER USER TEST IDENTIFIED BY ABC ACCOUNT UNLOCK; --계정 풀고 비밀번호 변경
 
 REVOKE CREATE USER FROM kim; -- 권한뺏기
-REVOKE CREATE SESSION FROM kim;
+
 
 /*
 권한의 종류
@@ -28,7 +28,6 @@ OBJECT : TABLE, SEQUENCE, VIEW
 
 --시스템 권한은 어떤것들이 있습니까?
 SELECT * FROM SYSTEM_PRIVILEGE_MAP;
-
 
 GRANT CREATE SESSION,RESOURCE,UNLIMITED TABLESPACE TO SUZI; --수지에게 권한 부여
 
@@ -51,53 +50,7 @@ GRANT MANAGER TO SUZI;
 
 REVOKE MANAGER FROM SUZI;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+GRANT CREATE VIEW TO KIM; 
 
 
 
