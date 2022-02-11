@@ -392,3 +392,207 @@ SELECT * FROM (SELECT * FROM CUSTOM WHERE ADDR1 = '경기도') A
 WHERE A.AGE <=20;
 
 
+
+-- 2/3 -----------------------------------------------------------------------------------------------------
+
+create table 사원
+(사원번호 number(10),
+사원명 varchar2(10),
+부서번호 number(2),
+직급 varchar2(10),
+우편번호 char(7),
+주소 varchar2(50),
+전화번호 char(15),
+급여 number(5),
+커미션 number(5),
+입사일 date,
+성별 char(6),
+사수번호 number(10)
+);
+
+insert into 사원 values(2001,'이순신',10,'부장','125-365','서울 용산구','02-985-1254',3500,100,'1980-12-01','남자',null);
+insert into 사원 values(2002,'홍길동',10,'대리','354-865','서울 강남구','02-865-1254',4000,'','2000-01-25','남자',2004);
+insert into 사원 values(2003,'성유리',20,'사원','587-456','부산 해운대구','051-256-9874',2500,100,'2002-05-24','여자',2002);
+insert into 사원 values(2004,'옥주현',30,'과장','987-452','서울 강남구','02-33-6589',5000,'','1997-03-22','여자',2001);
+insert into 사원 values(2005,'길건',10,'대리','123-322','서울 성동구','02-888-9564',3000,100,'1999-07-15','여자',2004);
+insert into 사원 values(2006,'한지혜',20,'사원','154-762','서울 송파구','02-3369-9874',2000,'','2003-05-22','여자',2005);
+insert into 사원 values(2007,'박솔미',30,'대리','367-985','서울 영등포구','02-451-2563',3000,100,'2006-01-25','여자',2004);
+insert into 사원 values(2008,'이효리',40,'사원','552-126','서울 중구','02-447-3256',2000,'','2001-02-02','여자',2007);
+
+SELECT * FROM 사원;
+DESC 사원;
+COMMIT;
+
+-- PL/SQL ---------------------------------------------------
+-- CMD에서 /로 끝냄, 서버에 과부하가 걸리지 않고, 네트워크상 트래픽이 적음
+DECLARE 
+TYPE FIRSTTYPE IS RECORD 
+(A 사원.사원명%TYPE, B 사원.직급%TYPE, C 사원.급여%TYPE); -- 자료형을 DESC로 확인하지 않고 바로 가져온다
+
+CUS FIRSTTYPE; --CUS라는 변수 3개
+
+BEGIN -- 시작
+SELECT 사원명, 직급, 급여 INTO CUS FROM 사원 WHERE 사원번호 = 2001;
+
+DBMS_OUTPUT.PUT_LINE(' 사원명  직급  급여 ');
+DBMS_OUTPUT.PUT_LINE('--------------------');
+DBMS_OUTPUT.PUT_LINE(CUS.A||'  '||CUS.B||'  '||TO_CHAR(CUS.C)); -- 자료형을 CHARACTER로 변환
+DBMS_OUTPUT.PUT_LINE('현재 질의한 계정은 '||USER||'입니다'); -- USER 내장되어있는 변수
+DBMS_OUTPUT.PUT_LINE('현재 질의한 시간은 '||TO_CHAR(SYSDATE,'YYYY-MM-DD HH:MM:SS'));
+END; -- 끝
+
+--SET SERVEROUTPUT ON;
+--DECLARE부터 END까지 다시 찍기
+
+SELECT * FROM 사원;
+
+SELECT 사원번호, 사원명, 직급, 급여, 커미션, F_TAX(2001) TAX FROM 사원
+WHERE 사원번호 = 2001;
+
+--------------------------------------------------
+ACCEPT ID PROMTPT '검색할 아이디를 입력하세요: ';
+
+DECLARE
+
+TYPE GOGAK IS RECORD
+(A CUSTOM.USERID%TYPE,
+B CUSTOM.USERNAME%TYPE,
+C NUMBER(12,2),
+D NUMBER(5));
+
+CUS GOGAK;
+
+BEGIN
+SELECT C.USERID, C.USERNAME, S.합계, S.구입횟수 INTO CUS
+FROM CUSTOM C, 
+(SELECT USERID, SUM(PRICE) 합계, COUNT(*) 구입횟수
+FROM SALES GROUP BY USERID) S
+WHERE C.USERID = S.USERID AND C.USERID = '&ID'; -- ID변수 치환변수
+
+DBMS_OUTPUT.PUT_LINE('아이디: '||CUS.A);
+DBMS_OUTPUT.PUT_LINE('이  름: '||CUS.B);
+DBMS_OUTPUT.PUT_LINE('판매액: '||CUS.C);
+DBMS_OUTPUT.PUT_LINE('금  액: '||CUS.D);
+
+END;
+
+--------------------------------------------------------------
+
+-- 직책을 입력받아 그 직책의 급여의 총액, 평균월급, 인원수를 찾으시오
+
+CREATE OR REPLACE PROCEDURE SEARCHJIK
+(JIK IN VARCHAR2)
+IS
+A NUMBER:=0;
+B NUMBER(12,2):=0;
+C NUMBER:=0;
+BEGIN
+SELECT SUM(PAY),ROUND(AVG(PAY)), COUNT(*) INTO A,B,C
+FROM COMPANY WHERE POSIT=JIK;
+
+
+DBMS_OUTPUT.PUT_LINE('급여총액: '||A||'원');
+DBMS_OUTPUT.PUT_LINE('평균월급: '||B||'원');
+DBMS_OUTPUT.PUT_LINE('인원수: '||C||'명');
+END SEARCHJIK;
+
+---------------------------------------------------------------
+
+SELECT * FROM CUSTOM;
+DESC CUSTOM;
+
+-- CUSTOM 테이블에 INSERT 시키는 프로시져(CUS_IN) -----------------------------------------------------------------
+
+CREATE OR REPLACE PROCEDURE CUS_IN
+(A VARCHAR2, B VARCHAR2, C VARCHAR2, D VARCHAR2, E VARCHAR2, F VARCHAR2, G VARCHAR2, 
+H VARCHAR2, I VARCHAR2, J VARCHAR2, K VARCHAR2, L VARCHAR2, M NUMBER, N DATE)
+IS
+BEGIN
+INSERT INTO CUSTOM VALUES (A,B,C,D,E,F,G,H,I,J,K,L,M,N);
+COMMIT;
+END;
+
+EXEC CUS_IN('A001','SUZI','123',27,'0','123-123','서울','강남구','역삼동','010-123-1234','가수','대졸',123,SYSDATE);
+
+SELECT * FROM CUSTOM WHERE USERID = 'A001';
+
+
+-- CUSTOM 테이블에 UPDATE 시키는 프로시져(CUS_UP) ------------------------------------------------------------------
+
+CREATE OR REPLACE PROCEDURE CUS_UP
+(A VARCHAR2, B VARCHAR2, C VARCHAR2, D VARCHAR2, E VARCHAR2, F VARCHAR2, G VARCHAR2, 
+H VARCHAR2, I VARCHAR2, J VARCHAR2, K VARCHAR2, L VARCHAR2, M NUMBER, N DATE)
+IS
+BEGIN
+UPDATE CUSTOM SET USERNAME=B, JUMIN=C, AGE=D, SEX=E, ZIP=F, 
+ADDR1=G, ADDR2=H, ADDR3=I, TEL=J, JOB=K, SCHOL = L, POINT = M, REGDATE =N
+WHERE USERID = A;
+COMMIT;
+END;
+
+EXEC CUS_IN('A002','HYEMIN','123',27,'0','123-123','서울','강남구','역삼동','010-123-1234','가수','대졸',123,SYSDATE);
+
+SELECT * FROM CUSTOM WHERE USERID = 'A002';
+
+-- CUSTOM 테이블에 DELETE 시키는 프로시져(CUS_DEL)
+
+CREATE OR REPLACE PROCEDURE CUS_DEL
+(A VARCHAR2)
+IS BEGIN
+DELETE CUSTOM WHERE USERID= 'A002';
+COMMIT;
+END;
+
+-- 설명을 입력받아 이름만 출력
+
+LEE@XE> CREATE OR REPLACE FUNCTION F_SDAY(V_DATE IN DATE)
+  2  RETURN VARCHAR2
+  3  IS
+  4  GUNDATE VARCHAR2(20);
+  5  BEGIN
+  6  GUNDATE :=
+  7  FLOOR(MONTHS_BETWEEN(SYSDATE,V_DATE)/12)||'년'||
+  8  FLOOR(MOD(MONTHS_BETWEEN(SYSDATE,V_DATE),12))||'개월';
+  9  RETURN GUNDATE;
+ 10  END;
+ 11  /
+
+
+LEE@XE> --주민번호를 입력했을때 성별을 반환해주는 함수
+LEE@XE> CREATE OR REPLACE FUNCTION F_GENDER
+  2  (V_JUMIN IN VARCHAR2)
+  3  RETURN VARCHAR2
+  4  IS
+  5  GENDER VARCHAR2(2);
+  6  BEGIN
+  7  GENDER:=SUBSTR(V_JUMIN,8,1);
+  8  IF
+  9  GENDER IN ('1','3') THEN
+ 10  GENDER:='남';
+ 11  ELSE
+ 12  GENDER:='여';
+ 13  END IF;
+ 14  RETURN GENDER;
+ 15  END;
+ 16  /
+
+-- 성별 반환
+CREATE OR REPLACE FUNCTION F_GENDER
+(V_JUMIN IN VARCHAR2)
+RETURN VARCHAR2
+IS
+GENDER VARCHAR2(2);
+BEGIN
+GENDER:=SUBSTR(V_JUMIN,8,1);
+IF
+GENDER IN ('1','3') THEN
+GENDER:='남';
+ELSE
+GENDER:='여';
+END IF;
+RETURN GENDER;
+END;
+/
+
+
+

@@ -989,7 +989,7 @@ SELECT * FROM PERSONNEL;
 
 ROLLBACK; -- 취소..?
 
-SELECT * FROM PERSONNEL; -- 취소 안됌! TRUNCATE는 무조건 삭제!
+SELECT * FROM PERSONNEL; -- 취소 안?! TRUNCATE는 무조건 삭제!
 
 -- RENAME ---------------------------------------------
 
@@ -1326,7 +1326,7 @@ WHERE RNUM>=3 AND RNUM<=6; --범위값 구하는거는 한번 더 감싸줘야함 ㅠ★
 
 -- SYNONYM(동의어) -----------------------------------------------------------
 
-CREATE OR REPLACE SYNONYM INSA FOR KIM.PERSONNEL; -- ★왜안됑???
+CREATE OR REPLACE SYNONYM INSA FOR KIM.PERSONNEL; -- ★왜안????
 -- 스키마 : 임의의 사용자가 생성한 모든 데이터베이스 객체(object))들을 말하며, 스키마 이름은 그 사용자(user)의 이름과 같음 
 
 SELECT * FROM INSA;
